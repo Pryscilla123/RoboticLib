@@ -1,0 +1,38 @@
+---
+:source:
+  :path: test
+  :file: test_libadr.c
+:successes:
+- :test: test_libadr_openDevice
+  :line: 15
+  :message: ''
+  :unity_test_time: 0
+- :test: test_libadr_getStepRegisterValue
+  :line: 47
+  :message: ''
+  :unity_test_time: 0
+- :test: test_libadr_getIdleRegisterValue
+  :line: 73
+  :message: ''
+  :unity_test_time: 0
+- :test: test_libadr_getDelayRegisterValue
+  :line: 95
+  :message: ''
+  :unity_test_time: 0
+- :test: test_libadr_readAnalog
+  :line: 107
+  :message: ''
+  :unity_test_time: 0
+:failures:
+- :test: test_libadr_digitalRead
+  :line: 41
+  :message: Expected 1 Was 0
+  :unity_test_time: 0
+:ignores: []
+:counts:
+  :total: 6
+  :passed: 5
+  :failed: 1
+  :ignored: 0
+:stdout: []
+:time: 0.02130639999813866
