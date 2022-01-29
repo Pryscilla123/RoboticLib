@@ -1,12 +1,5 @@
 #include "libadr.h"
 
-//open_device -> abre
-//close_device -> fecha
-
-//digitalWrite
-//digitalRead -> retorna bool
-//pinMode
-
 /**
  * @brief Inicializa um ponteiro que recebe a primeira posição 
  * do ambiente virtual criado pelo mmap.
@@ -15,7 +8,7 @@
  * @param lenght tamanho do espaço consumido na memória pelo addr.
  * @return int* retorna o ponteiro.
  */
-int *openDevice(int addr, int lenght){
+int *open_device(int addr, int lenght){
    int fd = open("/dev/mem", O_RDWR | O_SYNC);
    int * pinconf = (int *) malloc(sizeof(int));
    if(pinconf == NULL){
@@ -37,7 +30,7 @@ int *openDevice(int addr, int lenght){
  * cápitulo 6.
  * @param mode entrada ou saída. 
  */
-void pinMode(int *pinconf, int pin, int mode){
+void set_pin_mode(int *pinconf, int pin, int mode){
    if(mode){
       pinconf[OE_ADDR/4] |= 1 << pin; // input
    }else{
@@ -52,7 +45,7 @@ void pinMode(int *pinconf, int pin, int mode){
  * @param pin pino que será colocado em baixo ou alto.
  * @param state estado baixo(0) ou alto(1).
  */
-void digitalWrite(int *pinconf, int pin, int state){
+void digital_write(int *pinconf, int pin, int state){
 
    if(state){
       pinconf[GPIO_DATAOUT/4] |= (1 << pin);
@@ -70,7 +63,7 @@ void digitalWrite(int *pinconf, int pin, int state){
  * @return int retorna 0 caso o pino esteja recebendo 0V ou
  * 1 caso o pino esteja recebendo 3,3V.
  */
-int digitalRead(int *pinconf, int pin){
+int digital_read(int *pinconf, int pin){
    return (pinconf[GPIO_DATAIN/4] >> pin) & 0x1;
 }
 
@@ -79,7 +72,7 @@ int digitalRead(int *pinconf, int pin){
  * 
  * @param pinconf ponteiro alocado virtualmente pelo mmap para digital.
  */
-void closeDevice(int *pinconf){
+void close_device(int *pinconf){
    free(pinconf);
 }
 
@@ -89,7 +82,7 @@ void closeDevice(int *pinconf){
  * @param pinconf ponteiro com a memória alocada pelo mmap para analógico.
  * @param num número de passos serão habilitados.
  */
-void stepEnable(int *pinconf, int num){
+void step_enable(int *pinconf, int num){
    u_int32_t reg_config = 0;
 
    for(int i = 0; i < num; i++){
@@ -110,7 +103,7 @@ void stepEnable(int *pinconf, int num){
  * @return unsigned int retorna uma palavra de 32 bits com a instrução da
  * configuração do passo. 
  */
-unsigned int getStepRegisterValue(Step config){
+unsigned int get_step_register_value(step_config config){
    return (config.range_check << 27) | (config.fifo_select << 26) |
           (config.diff_cntrl << 25) | (config.sel_rfm_swc_1_0 << 23) |
           (config.sel_inp_swc_3_0 << 19) | (config.sel_inm_swc_3_0 << 15) |
@@ -131,7 +124,7 @@ unsigned int getStepRegisterValue(Step config){
  * @return unsigned int retorna uma palavra de 32 bits com a instrução da
  * configuração do passo. 
  */
-unsigned int getIdleRegisterValue(Idle config){
+unsigned int get_idle_register_value(idle_config config){
    return (config.diff_cntrl << 25) | (config.sel_rfm_swc_1_0 << 23) |
           (config.sel_inp_swc_3_0 << 19) | (config.sel_inm_swc_3_0 << 15) |
           (config.sel_rfp_swc_2_0 << 12) | (config.wpnsw_swc << 11) |
@@ -148,7 +141,7 @@ unsigned int getIdleRegisterValue(Idle config){
  * @param config struct com as configurações do delay de conversão.
  * @return unsigned int retorna uma palavra de 32 bits com o tempo entre um a conversão e outra.
  */
-unsigned int getDelayRegisterValue(Delay config){
+unsigned int get_delay_register_value(delay_config config){
    return (config.sample_delay << 24) | (config.open_delay);
 }
 
@@ -165,8 +158,8 @@ unsigned int getDelayRegisterValue(Delay config){
  * então a conversão vai para as configurações do modo oscioso.
  * @param num numero de passos ativados.
  */
-void init(int *pinconf, Delay delays[], Step steps[], Idle idle, int num){
-   pinconf[ADC_TSC_IDLECONFIG/4] = getIdleRegisterValue(idle);
+void init(int *pinconf, delay_config delays[], step_config steps[], idle_config idle, int num){
+   pinconf[ADC_TSC_IDLECONFIG/4] = get_idle_register_value(idle);
 
    /**
     * @brief Os passos de configuração e delay são alternados entre sí
@@ -175,8 +168,8 @@ void init(int *pinconf, Delay delays[], Step steps[], Idle idle, int num){
     */
 
    for(int i = 0; i < num; i++){
-      pinconf[(STEPCONFIG1 + (0x8 * i))/4] = getStepRegisterValue(steps[i]);
-      pinconf[(STEPDELAY1 + (0x8 * i))/4] = getDelayRegisterValue(delays[i]);
+      pinconf[(STEP_CONFIG1 + (0x8 * i))/4] = get_step_register_value(steps[i]);
+      pinconf[(STEP_DELAY1 + (0x8 * i))/4] = get_delay_register_value(delays[i]);
    }
 }
 
@@ -188,6 +181,6 @@ void init(int *pinconf, Delay delays[], Step steps[], Idle idle, int num){
  * @return int retorna valor entre 0 e 4096 que é o valor da voltagem passada pelo 
  * analógico.
  */
-int readAnalog(int *pinconf, int fifo_addr){
+int read_analog(int *pinconf, int fifo_addr){
    return pinconf[fifo_addr/4] & 0xFFF;
 }
