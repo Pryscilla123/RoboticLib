@@ -10,12 +10,12 @@ char* GlobalOrderError;
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
 extern void tearDown(void);
-extern void test_libadr_openDevice(void);
-extern void test_libadr_digitalRead(void);
-extern void test_libadr_getStepRegisterValue(void);
-extern void test_libadr_getIdleRegisterValue(void);
-extern void test_libadr_getDelayRegisterValue(void);
-extern void test_libadr_readAnalog(void);
+extern void test_libadr_open_device(void);
+extern void test_libadr_digital_read(void);
+extern void test_libadr_get_step_register_value(void);
+extern void test_libadr_get_idle_register_value(void);
+extern void test_libadr_get_delay_register_value(void);
+extern void test_libadr_read_analog(void);
 
 
 /*=======Mock Management=====*/
@@ -80,12 +80,12 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
 int main(void)
 {
   UnityBegin("test_libadr.c");
-  run_test(test_libadr_openDevice, "test_libadr_openDevice", 15);
-  run_test(test_libadr_digitalRead, "test_libadr_digitalRead", 26);
-  run_test(test_libadr_getStepRegisterValue, "test_libadr_getStepRegisterValue", 47);
-  run_test(test_libadr_getIdleRegisterValue, "test_libadr_getIdleRegisterValue", 73);
-  run_test(test_libadr_getDelayRegisterValue, "test_libadr_getDelayRegisterValue", 95);
-  run_test(test_libadr_readAnalog, "test_libadr_readAnalog", 107);
+  run_test(test_libadr_open_device, "test_libadr_open_device", 15);
+  run_test(test_libadr_digital_read, "test_libadr_digital_read", 26);
+  run_test(test_libadr_get_step_register_value, "test_libadr_get_step_register_value", 47);
+  run_test(test_libadr_get_idle_register_value, "test_libadr_get_idle_register_value", 73);
+  run_test(test_libadr_get_delay_register_value, "test_libadr_get_delay_register_value", 95);
+  run_test(test_libadr_read_analog, "test_libadr_read_analog", 107);
 
   return UnityEnd();
 }

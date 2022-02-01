@@ -39,8 +39,11 @@ int digital_read(int *pinconf, int pin){
 }
 
 
-void close_device(int *pinconf){
-   free(pinconf);
+void close_device(int **pinconf){
+
+   int *p = *pinconf;
+
+   free(p);
 }
 
 

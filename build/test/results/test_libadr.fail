@@ -3,28 +3,28 @@
   :path: test
   :file: test_libadr.c
 :successes:
-- :test: test_libadr_openDevice
+- :test: test_libadr_open_device
   :line: 15
   :message: ''
   :unity_test_time: 0
-- :test: test_libadr_getStepRegisterValue
+- :test: test_libadr_get_step_register_value
   :line: 47
   :message: ''
   :unity_test_time: 0
-- :test: test_libadr_getIdleRegisterValue
+- :test: test_libadr_get_idle_register_value
   :line: 73
   :message: ''
   :unity_test_time: 0
-- :test: test_libadr_getDelayRegisterValue
+- :test: test_libadr_get_delay_register_value
   :line: 95
   :message: ''
   :unity_test_time: 0
-- :test: test_libadr_readAnalog
+- :test: test_libadr_read_analog
   :line: 107
   :message: ''
   :unity_test_time: 0
 :failures:
-- :test: test_libadr_digitalRead
+- :test: test_libadr_digital_read
   :line: 41
   :message: Expected 1 Was 0
   :unity_test_time: 0
@@ -35,4 +35,4 @@
   :failed: 1
   :ignored: 0
 :stdout: []
-:time: 0.02130639999813866
+:time: 0.019535209000423492
