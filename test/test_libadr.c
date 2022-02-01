@@ -27,24 +27,21 @@ void test_libadr_digital_read(void)
 {
     //prep
     int *pinconf = open_device(GPIO1_ADDR, 0x1000);
-  
-    set_pin_mode(pinconf, 28, 1);
-    digital_write(pinconf, 28, 0);
 
-    set_pin_mode(pinconf, 16, 0);
+    set_pin_mode(pinconf, 28, 0);
+    set_pin_mode(pinconf, 16, 1);
+
+    digital_write(pinconf, 28, 0);
 
     //pinMode(pinconf, 28, 1);
     TEST_ASSERT_EQUAL_INT(0, digital_read(pinconf, 16));
 
-    //pinMode(pinconf, 28, 0);
     digital_write(pinconf, 28, 1);
 
-    //pinMode(pinconf, 28, 1);
     TEST_ASSERT_EQUAL_INT(1, digital_read(pinconf, 16));
 
-
     //closeDevice
-    //closeDevice(pinconf);
+    //close_device(&pinconf);
 }
 
 void test_libadr_get_step_register_value(void)
@@ -84,12 +81,12 @@ void test_libadr_get_idle_register_value(void)
     config_idle.sel_inm_swc_3_0 = ADCREFM_INM;
     config_idle.sel_rfp_swc_2_0 = VDDA_ADC;
     config_idle.wpnsw_swc = OFF_WPNSW;
-    config_idle.ypnsw_swc = off_YPNSW;
-    config_idle.xnpsw_swc = off_XNPSW;
-    config_idle.ynnsw_swc = off_YNNSW;
-    config_idle.yppsw_swc = off_YPPSW;
-    config_idle.xnnsw_swc = off_XNNSW;
-    config_idle.xppsw_swc = off_XPPSW;
+    config_idle.ypnsw_swc = OFF_YPNSW;
+    config_idle.xnpsw_swc = OFF_XNPSW;
+    config_idle.ynnsw_swc = OFF_YNNSW;
+    config_idle.yppsw_swc = OFF_YPPSW;
+    config_idle.xnnsw_swc = OFF_XNNSW;
+    config_idle.xppsw_swc = OFF_XPPSW;
 
     //test
     TEST_ASSERT_EQUAL_UINT(0x40000, get_idle_register_value(config_idle));
@@ -157,6 +154,7 @@ void test_libadr_read_analog(void)
 
     //test
     TEST_ASSERT_LESS_OR_EQUAL_UINT(4096, read_analog(analogconfig, 0x100));
+    //close_device(&analogconfig);
 }
 
 #endif // TEST

@@ -156,7 +156,7 @@ int digital_read(int *pinconf, int pin);
  * 
  * @param pinconf ponteiro alocado virtualmente pelo mmap para digital.
  */
-void close_device(int *pinconf);
+void close_device(int **pinconf);
 
 /**
  * @brief Função que habilita os steps de conversão analógica.
