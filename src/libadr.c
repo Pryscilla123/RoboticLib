@@ -1,13 +1,7 @@
 #include "libadr.h"
 
-//open_device -> abre
-//close_device -> fecha
 
-//digitalWrite
-//digitalRead -> retorna bool
-//pinMode
-
-int *openDevice(int addr, int lenght){
+int *open_device(int addr, int lenght){
    int fd = open("/dev/mem", O_RDWR | O_SYNC);
    int * pinconf = (int *) malloc(sizeof(int));
    if(pinconf == NULL){
@@ -19,15 +13,17 @@ int *openDevice(int addr, int lenght){
 }
 
 
-void pinMode(int *pinconf, int pin, int mode){
+
+void set_pin_mode(int *pinconf, int pin, int mode){
    if(mode){
-      pinconf[OE_ADDR/4] |= 1 << pin; // inputp
+      pinconf[OE_ADDR/4] |= 1 << pin; // input
    }else{
       pinconf[OE_ADDR/4] &= ~(1 << pin); // output
    }
 }
 
-void digitalWrite(int *pinconf, int pin, int state){
+
+void digital_write(int *pinconf, int pin, int state){
 
    if(state){
       pinconf[GPIO_DATAOUT/4] |= (1 << pin);
@@ -37,15 +33,18 @@ void digitalWrite(int *pinconf, int pin, int state){
    }
 }
 
-int digitalRead(int *pinconf, int pin){
+
+int digital_read(int *pinconf, int pin){
    return (pinconf[GPIO_DATAIN/4] >> pin) & 0x1;
 }
 
-void closeDevice(int *pinconf){
+
+void close_device(int *pinconf){
    free(pinconf);
 }
 
-void stepEnable(int *pinconf, int num){
+
+void step_enable(int *pinconf, int num){
    u_int32_t reg_config = 0;
 
    for(int i = 0; i < num; i++){
@@ -55,7 +54,8 @@ void stepEnable(int *pinconf, int num){
    pinconf[ADC_TSC_STEPENABLE/4] = reg_config;
 }
 
-unsigned int getStepRegisterValue(Step config){
+
+unsigned int get_step_register_value(step_config config){
    return (config.range_check << 27) | (config.fifo_select << 26) |
           (config.diff_cntrl << 25) | (config.sel_rfm_swc_1_0 << 23) |
           (config.sel_inp_swc_3_0 << 19) | (config.sel_inm_swc_3_0 << 15) |
@@ -66,7 +66,8 @@ unsigned int getStepRegisterValue(Step config){
           (config.averaging << 2) | (config.mode);
 }
 
-unsigned int getIdleRegisterValue(Idle config){
+
+unsigned int get_idle_register_value(idle_config config){
    return (config.diff_cntrl << 25) | (config.sel_rfm_swc_1_0 << 23) |
           (config.sel_inp_swc_3_0 << 19) | (config.sel_inm_swc_3_0 << 15) |
           (config.sel_rfp_swc_2_0 << 12) | (config.wpnsw_swc << 11) |
@@ -75,20 +76,27 @@ unsigned int getIdleRegisterValue(Idle config){
           (config.xnnsw_swc << 6) | (config.xppsw_swc << 5);
 }
 
-unsigned int getDelayRegisterValue(Delay config){
+
+unsigned int get_delay_register_value(delay_config config){
    return (config.sample_delay << 24) | (config.open_delay);
 }
 
-void init(int *pinconf, Delay delays[], Step steps[], Idle idle, int num){
-   pinconf[ADC_TSC_IDLECONFIG/4] = getIdleRegisterValue(idle);
+
+void init_adc_config(int *pinconf, delay_config delays[], step_config steps[], idle_config idle, int num){
+   pinconf[ADC_TSC_IDLECONFIG/4] = get_idle_register_value(idle);
+
+   /**
+    * @brief Os passos de configuração e delay são alternados entre sí
+    * com um intervalo de 0x4 entre cada um e um intervalo de 0x8 entre cada passo 
+    * por exemplo passo 1 e 2 e o mesmo com o delay.
+    */
 
    for(int i = 0; i < num; i++){
-      pinconf[(STEPCONFIG1 + (0x8 * i))/4] = getStepRegisterValue(steps[i]);
-      //printf("%x %x\n", (STEPCONFIG1 + (0x8 * i)), getStepRegisterValue(steps[i]));
-      pinconf[(STEPDELAY1 + (0x8 * i))/4] = getDelayRegisterValue(delays[i]);
+      pinconf[(STEP_CONFIG1 + (0x8 * i))/4] = get_step_register_value(steps[i]);
+      pinconf[(STEP_DELAY1 + (0x8 * i))/4] = get_delay_register_value(delays[i]);
    }
 }
 
-int readAnalog(int *pinconf, int fifo_addr){
+int read_analog(int *pinconf, int fifo_addr){
    return pinconf[fifo_addr/4] & 0xFFF;
 }
