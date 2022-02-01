@@ -27,18 +27,21 @@ void test_libadr_digital_read(void)
 {
     //prep
     int *pinconf = open_device(GPIO1_ADDR, 0x1000);
-
-    set_pin_mode(pinconf, 28, 0);
+  
+    set_pin_mode(pinconf, 28, 1);
     digital_write(pinconf, 28, 0);
 
+    set_pin_mode(pinconf, 16, 0);
+
     //pinMode(pinconf, 28, 1);
-    TEST_ASSERT_EQUAL_INT(0, digital_read(pinconf, 28));
+    TEST_ASSERT_EQUAL_INT(0, digital_read(pinconf, 16));
 
     //pinMode(pinconf, 28, 0);
     digital_write(pinconf, 28, 1);
 
     //pinMode(pinconf, 28, 1);
-    TEST_ASSERT_EQUAL_INT(1, digital_read(pinconf, 28));
+    TEST_ASSERT_EQUAL_INT(1, digital_read(pinconf, 16));
+
 
     //closeDevice
     //closeDevice(pinconf);
