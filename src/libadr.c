@@ -1,15 +1,13 @@
 #include "libadr.h"
 
 
-int *open_device(int addr, int lenght){
-   int fd = open("/dev/mem", O_RDWR | O_SYNC);
-   int * pinconf = (int *) malloc(sizeof(int));
-   if(pinconf == NULL){
-      exit(1024);
-   }
-   pinconf = (int *) mmap(NULL, lenght, PROT_READ | PROT_WRITE, MAP_SHARED, fd, addr);
+map_addr open_device(int addr, int length){
+   map_addr addr_open;
+   addr_open.fd = open("/dev/mem", O_RDWR | O_SYNC);
 
-   return pinconf;
+   addr_open.pinconf = (int *) mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, addr_open.fd, addr);
+
+   return addr_open;
 }
 
 
@@ -39,11 +37,10 @@ int digital_read(int *pinconf, int pin){
 }
 
 
-void close_device(int **pinconf){
+void close_device(map_addr addr, int length){
 
-   int *p = *pinconf;
-
-   free(p);
+   munmap(addr.pinconf, length);
+   close(addr.fd);
 }
 
 
