@@ -14,34 +14,46 @@ void tearDown(void)
 
 void test_libadr_open_device(void)
 {
+    map_addr addr_gpio0 = open_device(GPIO0_ADDR, 0x1000);
+    map_addr addr_gpio1 = open_device(GPIO1_ADDR, 0x1000);
+    map_addr addr_gpio2 = open_device(GPIO2_ADDR, 0x1000);
+    map_addr addr_gpio3 = open_device(GPIO3_ADDR, 0x1000);
+
+    map_addr addr_adc = open_device(ADC_TSC, 0x2000);
+
     //teste do digital not null
-    TEST_ASSERT_NOT_NULL(open_device(GPIO0_ADDR, 0x1000));
-    TEST_ASSERT_NOT_NULL(open_device(GPIO1_ADDR, 0x1000));
-    TEST_ASSERT_NOT_NULL(open_device(GPIO2_ADDR, 0x1000));
-    TEST_ASSERT_NOT_NULL(open_device(GPIO3_ADDR, 0x1000));
+    TEST_ASSERT_NOT_NULL(addr_gpio0.pinconf);
+    TEST_ASSERT_NOT_NULL(addr_gpio1.pinconf);
+    TEST_ASSERT_NOT_NULL(addr_gpio2.pinconf);
+    TEST_ASSERT_NOT_NULL(addr_gpio3.pinconf);
     //teste do analogico não null
-    TEST_ASSERT_NOT_NULL(open_device(ADC_TSC, 0x2000));
+    TEST_ASSERT_NOT_NULL(addr_adc.pinconf);
+
+   close_device(addr_gpio0, 0x1000);
+   close_device(addr_gpio1, 0x1000);
+   close_device(addr_gpio2, 0x1000);
+   close_device(addr_gpio3, 0x1000);
+   close_device(addr_adc, 0x2000);
 }
 
 void test_libadr_digital_read(void)
 {
     //prep
-    int *pinconf = open_device(GPIO1_ADDR, 0x1000);
+    map_addr addr_gpio = open_device(GPIO1_ADDR, 0x1000);
 
-    set_pin_mode(pinconf, 28, 0);
-    set_pin_mode(pinconf, 16, 1);
+    set_pin_mode(addr_gpio.pinconf, 28, OUTPUT);
+    set_pin_mode(addr_gpio.pinconf, 16, INPUT);
 
-    digital_write(pinconf, 28, 0);
+    digital_write(addr_gpio.pinconf, 28, HIGH);
 
-    //pinMode(pinconf, 28, 1);
-    TEST_ASSERT_EQUAL_INT(0, digital_read(pinconf, 16));
+    TEST_ASSERT_EQUAL_INT(0, digital_read(addr_gpio.pinconf, 16));
 
-    digital_write(pinconf, 28, 1);
+    digital_write(addr_gpio.pinconf, 28, LOW);
 
-    TEST_ASSERT_EQUAL_INT(1, digital_read(pinconf, 16));
+    TEST_ASSERT_EQUAL_INT(1, digital_read(addr_gpio.pinconf, 16));
 
     //closeDevice
-    //close_device(&pinconf);
+    close_device(addr_gpio, 0x1000);
 }
 
 void test_libadr_get_step_register_value(void)
@@ -111,7 +123,7 @@ void test_libadr_read_analog(void)
     idle_config config_idle;
     delay_config config_delay[1];
 
-    int *analogconfig = open_device(ADC_TSC, 0x2000);
+    map_addr addr_analog = open_device(ADC_TSC, 0x2000);
 
     config_step[0].range_check = DISABLE_O_R_C;
     config_step[0].fifo_select = FIFO0;
@@ -146,15 +158,17 @@ void test_libadr_read_analog(void)
     config_delay[0].sample_delay = 0x0;
     config_delay[0].open_delay = 0x0;
 
-    init_adc_config(analogconfig, config_delay, config_step, config_idle, 1);
+    init_adc_config(addr_analog.pinconf, config_delay, config_step, config_idle, 1);
 
-    step_enable(analogconfig, 1);
+    step_enable(addr_analog.pinconf, 1);
 
-    while(analogconfig[ADC_TSC_STEPENABLE/4] != 0);
+    while(addr_analog.pinconf[ADC_TSC_STEPENABLE/4] != 0);
 
     //test
-    TEST_ASSERT_LESS_OR_EQUAL_UINT(4096, read_analog(analogconfig, 0x100));
-    //close_device(&analogconfig);
+    TEST_ASSERT_LESS_OR_EQUAL_UINT(4096, read_analog(addr_analog.pinconf, 0x100));
+    
+    //closing device
+    close_device(addr_analog, 0x2000);
 }
 
 #endif // TEST

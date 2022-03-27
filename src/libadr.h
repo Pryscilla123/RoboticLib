@@ -71,6 +71,15 @@ enum mode {SW_ONE_SHOT = 0x0, SW_CONTINUOUS = 0x1, HW_ONE_SHOT = 0x2, HW_CONTINU
 
 enum fifo_data {FIFO0_DATA = 0x100, FIFO1_DATA = 0x200};
 
+enum gpio_mode {INPUT = 1, OUTPUT = 0};
+
+enum pin_mode {HIGH = 0, LOW = 1};
+
+typedef struct _maddr {
+  int *pinconf;
+  int fd;
+}map_addr;
+
 typedef struct _stepconfig {
    int range_check;
    int fifo_select;
@@ -116,9 +125,9 @@ typedef struct _stepdelay{
  * 
  * @param addr endereço da posição de memória que será acessada.
  * @param lenght tamanho do espaço consumido na memória pelo addr.
- * @return int* retorna o ponteiro.
+ * @return map_addr retorna uma struct do tipo map_addr;
  */
-int *open_device(int addr, int lenght);
+map_addr open_device(int addr, int length);
 
 /**
  * @brief Função que altera o modo do pino de saída digital 
@@ -152,11 +161,13 @@ void digital_write(int *pinconf, int pin, int state);
 int digital_read(int *pinconf, int pin);
 
 /**
- * @brief desaloca a memoria de um ponteiro.
+ * @brief utiliza a função mummap para desmapear o mapeamento da memória,
+ * e também fecha o arquivo fd.
  * 
- * @param pinconf ponteiro alocado virtualmente pelo mmap para digital.
+ * @param addr struct com o mapeamento de memória utilizando o mmap.
+ * @param length tamanho em hexa do registrador map_addr.pinconf.
  */
-void close_device(int **pinconf);
+void close_device(map_addr addr, int length);
 
 /**
  * @brief Função que habilita os steps de conversão analógica.
